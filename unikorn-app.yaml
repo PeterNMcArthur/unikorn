@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: unikorn
+  namespace: argocd
+spec:
+  project: default
+  source:
+    path: charts/unikorn
+    repoURL: https://github.com/unikorn-cloud/unikorn.git
+    targetRevision: main
+    helm:
+      values: |
+        tag: 0.0.0
+        ui:
+          enabled: true
+        server:
+          enabled: true
+          ingress:
+            host: api.unikorn.nscale.com
+          oidc:
+            issuer: https://identity.unikorn.nscale.com
+            issuerCA: see-above-kubectl-output
+          keystone:
+            endpoint: "https://compute.sausage.cloud:5000"
+  destination:
+    namespace: unikorn
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

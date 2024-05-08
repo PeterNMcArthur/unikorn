@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: unikorn-ui
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/unikorn-cloud/ui.git
+    path: charts/ui
+    targetRevision: main
+    helm:
+      values: |
+        oauth2:
+          issuer: https://identity.unikorn.nscale.com
+          clientID: e7cd60d6-e74e-4c95-9407-86cc7cd1c78a
+        host: ui.unikorn.nscale.com
+        api:
+          host: https://api.unikorn.nscale.com
+        ingress:
+          class: nginx
+  destination:
+    namespace: unikorn
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
